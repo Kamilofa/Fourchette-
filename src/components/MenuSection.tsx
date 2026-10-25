@@ -188,13 +188,19 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   className="group bg-white rounded-2xl border border-stone-200 hover:border-amber-400 overflow-hidden flex flex-col transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 >
                   {/* Dish Visual Header with Authentic Image Crop */}
-                  <div className={`relative ${viewMode === 'large' ? 'h-64 sm:h-72' : 'h-48 sm:h-52'} w-full bg-stone-950 overflow-hidden select-none`}>
+                  <div className={`relative ${viewMode === 'large' ? 'h-64 sm:h-72' : 'h-48 sm:h-52'} w-full bg-stone-900 overflow-hidden select-none`}>
                     
-                    {item.imageSrc ? (
+                    {/* Always render gradient background so loading or fallback is pristine */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.imageFallback || 'from-amber-800 to-stone-950'} flex items-center justify-center p-4 text-white text-center`}>
+                      <h4 className="font-serif font-bold text-lg drop-shadow-md opacity-90">{item.name}</h4>
+                    </div>
+
+                    {item.imageSrc && (
                       <div className="relative w-full h-full overflow-hidden">
                         <img
                           src={item.imageSrc}
                           alt={item.name}
+                          loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                           style={{
                             transformOrigin: item.cropOrigin || 'center',
@@ -203,8 +209,15 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                           referrerPolicy="no-referrer"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            if (!target.src.includes('/public/')) {
-                              target.src = `/public${item.imageSrc}`;
+                            if (!target.dataset.retried) {
+                              target.dataset.retried = '1';
+                              if (item.imageSrc?.startsWith('/images/')) {
+                                target.src = item.imageSrc.replace('/images/', '/src/assets/images/');
+                              } else if (item.imageSrc?.startsWith('/src/assets/images/')) {
+                                target.src = item.imageSrc.replace('/src/assets/images/', '/images/');
+                              }
+                            } else {
+                              target.style.opacity = '0';
                             }
                           }}
                         />
@@ -219,10 +232,6 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                             <span>Agrandir le plat</span>
                           </span>
                         </div>
-                      </div>
-                    ) : (
-                      <div className={`w-full h-full bg-gradient-to-br ${item.imageFallback} flex items-center justify-center p-4 text-white text-center`}>
-                        <h4 className="font-serif font-bold text-xl drop-shadow-md">{item.name}</h4>
                       </div>
                     )}
 

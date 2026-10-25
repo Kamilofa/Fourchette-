@@ -169,7 +169,7 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Main Visual Image - High-End Generated Restaurant Spread */}
               <div className="relative aspect-[4/3] overflow-hidden group">
                 <img
-                  src="/src/assets/images/hero_culinary_spread_1792926507083.jpg"
+                  src="/images/hero_culinary_spread_1792926507083.jpg"
                   alt="Restaurant 5 Fourchettes Douala - Festin gastronomique, pizzas au feu de bois et gambas géantes"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
@@ -211,7 +211,7 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="p-3 bg-stone-50 border-t border-stone-200 grid grid-cols-3 gap-2">
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/src/assets/images/pizza_tikka_woodfired_1792926506777.jpg"
+                    src="/images/pizza_tikka_woodfired_1792926506777.jpg"
                     alt="Pizza Tikka artisanale au feu de bois"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"
@@ -224,7 +224,7 @@ export const Hero: React.FC<HeroProps> = ({
 
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/src/assets/images/grilled_jumbo_prawns_1792926551270.jpg"
+                    src="/images/grilled_jumbo_prawns_1792926551270.jpg"
                     alt="Gambas géantes braisées au feu de bois"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"
@@ -237,7 +237,7 @@ export const Hero: React.FC<HeroProps> = ({
 
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/src/assets/images/indian_chai_breakfast_1792926551291.jpg"
+                    src="/images/indian_chai_breakfast_1792926551291.jpg"
                     alt="Petit déjeuner indien parathas et thé chai"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"

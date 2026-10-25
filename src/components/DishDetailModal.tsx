@@ -94,10 +94,14 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({
                   }}
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    // Try fallback path if needed
                     const target = e.target as HTMLImageElement;
-                    if (!target.src.includes('/public/')) {
-                      target.src = `/public${item.imageSrc}`;
+                    if (!target.dataset.retried) {
+                      target.dataset.retried = '1';
+                      if (item.imageSrc?.startsWith('/images/')) {
+                        target.src = item.imageSrc.replace('/images/', '/src/assets/images/');
+                      } else if (item.imageSrc?.startsWith('/src/assets/images/')) {
+                        target.src = item.imageSrc.replace('/src/assets/images/', '/images/');
+                      }
                     }
                   }}
                 />

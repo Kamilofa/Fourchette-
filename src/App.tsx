@@ -144,6 +144,11 @@ export default function App() {
           }}
         />
 
+        <MenuSection
+          onAddToCart={handleAddToCart}
+          cartItems={cartItems}
+        />
+
         <ServicesSection
           onOpenReservation={scrollToReservation}
           onOpenOrder={() => {
@@ -151,11 +156,6 @@ export default function App() {
             setIsCartOpen(true);
           }}
           onOpenPrivateEventModal={() => setIsPrivateEventOpen(true)}
-        />
-
-        <MenuSection
-          onAddToCart={handleAddToCart}
-          cartItems={cartItems}
         />
 
         <TestimonialsCarousel />
