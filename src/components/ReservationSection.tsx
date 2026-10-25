@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Users, Clock, CheckCircle2, MessageCircle, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
+import { dbService } from '../services/dbService';
 
 interface ReservationSectionProps {
   onOpenDepositPayment: (amount: number, reservationRef: string) => void;
@@ -36,6 +37,23 @@ export const ReservationSection: React.FC<ReservationSectionProps> = ({
     const ref = `RES-5F-${Math.floor(1000 + Math.random() * 9000)}`;
     setReservationRef(ref);
     setSubmitted(true);
+
+    // Persist to Supabase & local DB
+    dbService.saveReservation({
+      id: ref,
+      customer_name: name.trim(),
+      customer_phone: phone.trim(),
+      reservation_date: date,
+      reservation_time: time,
+      guest_count: guests,
+      area: area,
+      needs_high_chair: needsHighChair,
+      is_birthday: isBirthday,
+      special_notes: specialNotes.trim() || undefined,
+      deposit_amount: 0,
+      status: 'confirmed',
+      created_at: new Date().toISOString()
+    }).catch(err => console.warn('Reservation save error:', err));
   };
 
   const whatsappReservationMessage = encodeURIComponent(

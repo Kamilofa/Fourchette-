@@ -7,10 +7,18 @@ export interface MenuItem {
   description: string;
   tags: string[];
   popular?: boolean;
-  imageFallback: string; // CSS gradient + SVG representation
+  imageFallback: string; // CSS gradient fallback
+  imageSrc?: string; // Authentic image from user screenshots
+  cropOrigin?: string; // CSS transform origin to zoom on the specific dish
+  scale?: number;
   spicy?: boolean;
   vegetarian?: boolean;
   halal?: boolean;
+  ingredients?: string[];
+  options?: {
+    name: string;
+    choices: { label: string; extraPrice: number }[];
+  }[];
 }
 
 export interface Review {
@@ -139,12 +147,34 @@ export const MENU_ITEMS: MenuItem[] = [
     category: "pizzas",
     categoryLabel: "Pizzas Artisanales",
     price: 11500,
-    description: "Sublime fusion : émincés de poulet mariné aux épices Tikka, champignons frais de Paris, mozzarella fondante et sauce tomate mijotée.",
+    description: "Sublime fusion : émincés de poulet mariné aux épices Tikka indiennes, champignons frais de Paris, mozzarella fondante et sauce tomate mijotée.",
     tags: ["Spécialité Maison", "Halal", "Best-Seller"],
     popular: true,
     spicy: true,
     halal: true,
-    imageFallback: "from-amber-700/80 to-red-900/90"
+    imageFallback: "from-amber-700/80 to-red-900/90",
+    imageSrc: "/src/assets/images/pizza_tikka_woodfired_1792926506777.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Pâte artisanale au levain cuite au four à bois", "Émincé de poulet mariné Tikka", "Champignons de Paris frais", "Mozzarella di latte fondante", "Sauce tomate maison aux herbes"],
+    options: [
+      {
+        name: "Supplément Fromage",
+        choices: [
+          { label: "Standard", extraPrice: 0 },
+          { label: "Double Mozzarella fondante", extraPrice: 1500 },
+          { label: "Copeaux de Parmesan affiné", extraPrice: 2000 }
+        ]
+      },
+      {
+        name: "Piquant souhaité",
+        choices: [
+          { label: "Épicé modéré", extraPrice: 0 },
+          { label: "Très épicé (Piment Douala)", extraPrice: 0 },
+          { label: "Doux (Sans piment)", extraPrice: 0 }
+        ]
+      }
+    ]
   },
   {
     id: "p-4fromages",
@@ -156,7 +186,20 @@ export const MENU_ITEMS: MenuItem[] = [
     tags: ["Végétarien", "Gourmet"],
     popular: true,
     vegetarian: true,
-    imageFallback: "from-yellow-700/80 to-amber-900/90"
+    imageFallback: "from-yellow-700/80 to-amber-900/90",
+    imageSrc: "/src/assets/images/pizza_four_cheese_1792928197121.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Pâte fine croustillante", "Mozzarella di bufala", "Gorgonzola crémeux", "Emmental fondu", "Parmigiano Reggiano", "Origan frais"],
+    options: [
+      {
+        name: "Base de la pizza",
+        choices: [
+          { label: "Base crème fraîche", extraPrice: 0 },
+          { label: "Base sauce tomate mijotée", extraPrice: 0 }
+        ]
+      }
+    ]
   },
   {
     id: "p-3viandes",
@@ -165,9 +208,23 @@ export const MENU_ITEMS: MenuItem[] = [
     categoryLabel: "Pizzas Artisanales",
     price: 12500,
     description: "Généreuse garniture de bœuf haché assaisonné maison, fines tranches de pepperoni, saucisse fumée, rondelles d'oignons doux et mozzarella.",
-    tags: ["Trés Copieux", "Viandes"],
+    tags: ["Très Copieux", "Viandes", "Gros Succès"],
     popular: true,
-    imageFallback: "from-red-800/80 to-stone-900/90"
+    imageFallback: "from-red-800/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/pizza_meat_lovers_1792928277739.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Bœuf haché assaisonné pur cru", "Pepperoni fumé", "Saucisse grillée", "Oignons doux", "Coulis de tomate", "Mozzarella généreuse"],
+    options: [
+      {
+        name: "Sauce d'accompagnement",
+        choices: [
+          { label: "Sauce pimentée maison", extraPrice: 0 },
+          { label: "Sauce barbecue fumée", extraPrice: 0 },
+          { label: "Huile pimentée aromatisée", extraPrice: 0 }
+        ]
+      }
+    ]
   },
   {
     id: "p-vegetarienne",
@@ -178,7 +235,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Légumes du marché grillés : poivrons tricolores croquants, champignons sautés, tomates cerises confites, basilic frais et olives noires.",
     tags: ["100% Végétarien", "Fraîcheur"],
     vegetarian: true,
-    imageFallback: "from-emerald-800/80 to-stone-900/90"
+    imageFallback: "from-emerald-800/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/pizza_four_cheese_1792928197121.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Tomates confites", "Feuilles de basilic frais", "Champignons sautés", "Poivrons doux", "Olives noires kalamata", "Fromage fondu"]
   },
 
   // Plats Indiens & Spécialités
@@ -193,7 +254,21 @@ export const MENU_ITEMS: MenuItem[] = [
     popular: true,
     spicy: false,
     vegetarian: true,
-    imageFallback: "from-amber-600/80 to-orange-950/90"
+    imageFallback: "from-amber-600/80 to-orange-950/90",
+    imageSrc: "/src/assets/images/indian_chai_breakfast_1792926551291.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Parathas feuilletés dorés au beurre clarifié (ghee)", "Raïta crémeuse au concombre frais", "Pickles achar épicés authentiques", "Verre de thé Chai fumant aux épices (cardamome, cannelle)"],
+    options: [
+      {
+        name: "Type de Paratha",
+        choices: [
+          { label: "Paratha nature au ghee", extraPrice: 0 },
+          { label: "Aloo Paratha (farci pomme de terre)", extraPrice: 1000 },
+          { label: "Paneer Paratha (farci fromage indien)", extraPrice: 1500 }
+        ]
+      }
+    ]
   },
   {
     id: "ind-butter-chicken",
@@ -206,7 +281,11 @@ export const MENU_ITEMS: MenuItem[] = [
     popular: true,
     spicy: true,
     halal: true,
-    imageFallback: "from-orange-700/80 to-red-950/90"
+    imageFallback: "from-orange-700/80 to-red-950/90",
+    imageSrc: "/src/assets/images/butter_chicken_curry_1792928170668.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Poulet fermier mariné 24h", "Sauce masala aux tomates et noix de cajou", "Riz basmati extra-long safrané", "Coriandre fraîche"]
   },
   {
     id: "ind-naan-fromage",
@@ -217,7 +296,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Galette de blé levée traditionnelle, généreusement farcie de fromage fondant et cuite minute sur la paroi du four tandoori.",
     tags: ["Chaud Minute", "Végétarien"],
     vegetarian: true,
-    imageFallback: "from-yellow-600/80 to-amber-950/90"
+    imageFallback: "from-yellow-600/80 to-amber-950/90",
+    imageSrc: "/src/assets/images/tandoori_cheese_naan_1792928183639.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Farine blanche levée", "Fromage fondu cœur fondant", "Beurre ghee fondu au pinceau", "Graines de nigelle"]
   },
   {
     id: "ind-biryani-agneau",
@@ -226,10 +309,14 @@ export const MENU_ITEMS: MenuItem[] = [
     categoryLabel: "Spécialités Indiennes",
     price: 13500,
     description: "Riz basmati extra-long parfumé au safran, morceaux d'agneau fondants marinés 24h, oignons caramélisés et amandes effilées dorées.",
-    tags: ["Grand Classique", "Halal", "Trés Copieux"],
+    tags: ["Grand Classique", "Halal", "Très Copieux"],
     popular: true,
     halal: true,
-    imageFallback: "from-amber-700/80 to-stone-900/90"
+    imageFallback: "from-amber-700/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/royal_lamb_biryani_1792928210967.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Agneau tendre mijoté à l'étouffée", "Riz basmati royal", "Épices entières (cannelle, cardamome, girofle)", "Amandes et raisins dorés"]
   },
 
   // Pâtes Fraîches & Cuisine Italienne
@@ -242,7 +329,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Tagliatelles fraîches enrobées d'une crème riche au beurre, parmesan Reggiano fondu, aiguillettes de poulet dorées et persil frais.",
     tags: ["Ultra Crémeux", "Plat Signature"],
     popular: true,
-    imageFallback: "from-stone-600/80 to-stone-900/90"
+    imageFallback: "from-stone-600/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/pasta_alfredo_poulet_1792926552156.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Tagliatelles fraîches al dente", "Crème double onctueuse au parmesan", "Aiguillettes de blanc de poulet rôties à l'huile d'olive", "Parmigiano Reggiano affiné", "Poivre noir concassé", "Persil plat ciselé"]
   },
   {
     id: "pat-carbonara",
@@ -253,7 +344,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "La recette gourmande préparée à la commande : crème fraîche veloutée, lardons fumés croustillants, jaune d'œuf coulant et poivre noir concassé.",
     tags: ["Gourmandise", "Populaire"],
     popular: true,
-    imageFallback: "from-yellow-800/80 to-stone-900/90"
+    imageFallback: "from-yellow-800/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/classic_carbonara_pasta_1792928265773.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Pâtes fraîches", "Lardons fumés dorés", "Crème onctueuse au parmesan", "Jaune d'œuf frais", "Poivre noir de Penja"]
   },
   {
     id: "pat-poulet-creme",
@@ -264,7 +359,21 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Tendre suprême de poulet nappé d'une onctueuse réduction de crème aux champignons sautés à l'ail et persil, servi avec frites dorées ou riz.",
     tags: ["Favori des Clients", "Copieux"],
     popular: true,
-    imageFallback: "from-amber-800/80 to-stone-900/90"
+    imageFallback: "from-amber-800/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/creamy_mushroom_chicken_1792928303534.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Suprême de poulet fermier", "Champignons de Paris sautés à l'ail", "Crème fraîche épaisse", "Persillade fraîche"],
+    options: [
+      {
+        name: "Accompagnement au choix",
+        choices: [
+          { label: "Frites maison dorées", extraPrice: 0 },
+          { label: "Riz parfumé", extraPrice: 0 },
+          { label: "Pâtes fraîches au beurre", extraPrice: 500 }
+        ]
+      }
+    ]
   },
 
   // Grillades & Burgers
@@ -277,7 +386,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Grosses gambas tigrées marinées aux herbes et citron vert, braisées à cœur avec leur persillade et servies avec riz créole et sauce pimentée douce.",
     tags: ["Fruits de Mer", "Prestige", "Gros Succès"],
     popular: true,
-    imageFallback: "from-red-700/80 to-amber-950/90"
+    imageFallback: "from-red-700/80 to-amber-950/90",
+    imageSrc: "/src/assets/images/grilled_jumbo_prawns_1792926551270.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Grosses gambas tigrées braisées au feu de bois", "Beurre d'ail et herbes fraîches", "Quartiers de citron vert", "Riz safrané parfumé"]
   },
   {
     id: "grill-burger",
@@ -288,7 +401,21 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Steak pur bœuf épais grillé minute, fromage coulant généreux, rondelles de tomates fraîches, oignons croquants, salade et frites croustillantes.",
     tags: ["Fait Maison", "Classique"],
     popular: true,
-    imageFallback: "from-amber-900/80 to-stone-900/90"
+    imageFallback: "from-amber-900/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/gourmet_beef_burger_1792928225281.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Pain brioché maison toasté", "Steak haché de bœuf frais", "Fromage fondu", "Tomates fraîches & oignons", "Frites maison croustillantes"],
+    options: [
+      {
+        name: "Cuisson du bœuf",
+        choices: [
+          { label: "À point", extraPrice: 0 },
+          { label: "Bien cuit", extraPrice: 0 },
+          { label: "Saignant", extraPrice: 0 }
+        ]
+      }
+    ]
   },
   {
     id: "grill-wings",
@@ -299,7 +426,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Ailerons marinés dans un savant mélange d'épices, panure dorée ultra croustillante, servis avec sauce cocktail et herbes fraîches.",
     tags: ["À Partager", "Croustillant"],
     popular: true,
-    imageFallback: "from-yellow-700/80 to-red-950/90"
+    imageFallback: "from-yellow-700/80 to-red-950/90",
+    imageSrc: "/src/assets/images/crispy_chicken_wings_1792928290731.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Ailerons de poulet marinés", "Panure secrète croustillante", "Sauce dip piquante", "Persil ciselé"]
   },
 
   // Entrées & Salades
@@ -312,7 +443,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Mélange croquant de salades du jour, tomates fraîches de Douala, oignons rouges émincés, œuf dur et vinaigrette signature émulsionnée.",
     tags: ["Léger", "Végétarien"],
     vegetarian: true,
-    imageFallback: "from-emerald-700/80 to-stone-900/90"
+    imageFallback: "from-emerald-700/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/fresh_garden_salad_1792928334139.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Laitue fraîche croquante", "Tomates mûres de saison", "Oignons rouges", "Œufs fermiers", "Sauce vinaigrette moutardée"]
   },
   {
     id: "ent-samoussas",
@@ -322,7 +457,11 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 4000,
     description: "Triangles feuilletés croustillants farcis aux légumes épicés ou à la viande de bœuf, servis avec chutney vert à la menthe fraîche.",
     tags: ["Entrée Indienne", "À Partager"],
-    imageFallback: "from-amber-800/80 to-stone-900/90"
+    imageFallback: "from-amber-800/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/crispy_samosas_platter_1792928239402.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Pâte brick croustillante", "Farce épicée bœuf & légumes", "Chutney menthe et coriandre"]
   },
 
   // Boissons & Cocktails
@@ -335,7 +474,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Création désaltérante unique servie dans son verre à pied avec rondelle de citron jaune, infusion légère de thé et notes d'agrumes intenses.",
     tags: ["Boisson Star", "Sans Alcool"],
     popular: true,
-    imageFallback: "from-amber-500/80 to-stone-900/90"
+    imageFallback: "from-amber-500/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/japanese_iced_lemonade_1792928252517.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Infusion de thé doux", "Citron jaune pressé", "Sirop artisanal d'agrumes", "Eau pétillante glacée", "Glaçons"]
   },
   {
     id: "boiss-chai",
@@ -346,7 +489,11 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Authentique thé au lait indien mijoté lentement avec bâton de cannelle, gousses de cardamome verte, clous de girofle et gingembre frais râpé.",
     tags: ["Chaud Réconfortant", "Authentique"],
     popular: true,
-    imageFallback: "from-amber-600/80 to-stone-900/90"
+    imageFallback: "from-amber-600/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/indian_chai_breakfast_1792926551291.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Thé noir d'Assam", "Lait entier frais", "Cardamome verte", "Bâtons de cannelle", "Gingembre frais"]
   },
   {
     id: "boiss-mojito",
@@ -356,7 +503,11 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 4500,
     description: "Menthe fraîche pilée, quartier de citron vert pressé, sucre de canne roux, eau gazeuse pétillante et glace pilée (version classique ou vierge).",
     tags: ["Cocktail Fraîcheur"],
-    imageFallback: "from-emerald-600/80 to-stone-900/90"
+    imageFallback: "from-emerald-600/80 to-stone-900/90",
+    imageSrc: "/src/assets/images/japanese_iced_lemonade_1792928252517.jpg",
+    cropOrigin: "center",
+    scale: 1,
+    ingredients: ["Feuilles de menthe fraîche", "Citron vert pressé minute", "Sucre de canne", "Eau gazeuse", "Glace pilée"]
   },
   {
     id: "boiss-biere",
@@ -366,7 +517,11 @@ export const MENU_ITEMS: MenuItem[] = [
     price: 3000,
     description: "Grand choix de bières locales et internationales servies très fraîches, ainsi que nos verres de vins rouges, blancs et rosés sélectionnés.",
     tags: ["Alcools & Rafraîchissements"],
-    imageFallback: "from-yellow-600/80 to-stone-900/90"
+    imageFallback: "from-yellow-600/80 to-stone-900/90",
+    imageSrc: "/assets/aistudio/Screenshot_20261025_112259_Maps_1ee0685f.jpg",
+    cropOrigin: "24% 28%",
+    scale: 2.2,
+    ingredients: ["Sélection de bières blondes, brunes et ambrées servies très fraîches", "Vins au verre ou à la bouteille"]
   }
 ];
 

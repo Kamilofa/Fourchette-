@@ -10,8 +10,10 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { PaymentModal } from './components/PaymentModal';
 import { PrivateEventModal } from './components/PrivateEventModal';
+import { AdminClientsModal } from './components/AdminClientsModal';
+import { OrderStatusDashboardModal } from './components/OrderStatusDashboardModal';
 import { MENU_ITEMS, MenuItem, RESTAURANT_INFO } from './data/restaurantData';
-import { Phone, Calendar, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Phone, Calendar, ShoppingBag, MessageCircle, Database, Clock } from 'lucide-react';
 
 export default function App() {
   const [cartItems, setCartItems] = useState<{ [id: string]: number }>({});
@@ -21,9 +23,19 @@ export default function App() {
   const [paymentOrderRef, setPaymentOrderRef] = useState<string>('');
   const [paymentOrderType, setPaymentOrderType] = useState<'order' | 'reservation' | 'custom'>('custom');
   const [isPrivateEventOpen, setIsPrivateEventOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isOrderStatusOpen, setIsOrderStatusOpen] = useState(false);
+  const [orderTrackingRef, setOrderTrackingRef] = useState<string>('');
+  const [checkoutDetails, setCheckoutDetails] = useState<{
+    mode?: 'livraison' | 'drive' | 'table';
+    address?: string;
+    items?: Array<{ id: string; name: string; price: number; quantity: number }>;
+    customerName?: string;
+    customerPhone?: string;
+  } | undefined>();
 
   // Cart operations
-  const handleAddToCart = (item: MenuItem, change: number) => {
+  const handleAddToCart = (item: MenuItem, change: number, _note?: string) => {
     setCartItems((prev) => {
       const current = prev[item.id] || 0;
       const updated = current + change;
@@ -53,6 +65,20 @@ export default function App() {
 
   const handleProceedToCheckout = (amount: number, details: { mode: string; address: string; phone: string; name: string }) => {
     const ref = `CMD-5F-${Math.floor(1000 + Math.random() * 9000)}`;
+    const items = Object.entries(cartItems)
+      .map(([id, qty]) => {
+        const m = MENU_ITEMS.find((item) => item.id === id);
+        return m ? { id: m.id, name: m.name, price: m.price, quantity: qty } : null;
+      })
+      .filter((i): i is { id: string; name: string; price: number; quantity: number } => Boolean(i));
+
+    setCheckoutDetails({
+      mode: details.mode as any,
+      address: details.address,
+      customerName: details.name,
+      customerPhone: details.phone,
+      items,
+    });
     setPaymentPresetAmount(amount);
     setPaymentOrderRef(ref);
     setPaymentOrderType('order');
@@ -61,10 +87,15 @@ export default function App() {
   };
 
   const handleOpenDepositPayment = (amount: number, reservationRef: string) => {
+    setCheckoutDetails(undefined);
     setPaymentPresetAmount(amount);
     setPaymentOrderRef(reservationRef);
     setPaymentOrderType('reservation');
     setIsPaymentOpen(true);
+  };
+
+  const handlePaymentSuccess = (_orderId: string) => {
+    setCartItems({});
   };
 
   const scrollToMenu = () => {
@@ -87,10 +118,16 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenReservation={scrollToReservation}
         onOpenPayment={() => {
+          setCheckoutDetails(undefined);
           setPaymentPresetAmount(10000);
           setPaymentOrderRef(`REG-${Math.floor(1000 + Math.random() * 9000)}`);
           setPaymentOrderType('custom');
           setIsPaymentOpen(true);
+        }}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenOrderStatus={() => {
+          setOrderTrackingRef('');
+          setIsOrderStatusOpen(true);
         }}
       />
 
@@ -134,12 +171,14 @@ export default function App() {
       <Footer
         onOpenReservation={scrollToReservation}
         onOpenPayment={() => {
+          setCheckoutDetails(undefined);
           setPaymentPresetAmount(10000);
           setPaymentOrderRef(`REG-${Math.floor(1000 + Math.random() * 9000)}`);
           setPaymentOrderType('custom');
           setIsPaymentOpen(true);
         }}
         onScrollToMenu={scrollToMenu}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Cart Drawer */}
@@ -160,12 +199,31 @@ export default function App() {
         presetAmount={paymentPresetAmount}
         orderReference={paymentOrderRef}
         orderType={paymentOrderType}
+        orderDetails={checkoutDetails}
+        onPaymentSuccess={handlePaymentSuccess}
+        onTrackOrder={(orderId) => {
+          setOrderTrackingRef(orderId);
+          setIsOrderStatusOpen(true);
+        }}
+      />
+
+      {/* Customer Order Status Tracking Dashboard (Supabase) */}
+      <OrderStatusDashboardModal
+        isOpen={isOrderStatusOpen}
+        onClose={() => setIsOrderStatusOpen(false)}
+        initialOrderRef={orderTrackingRef}
       />
 
       {/* Private Event & VIP Quote Modal */}
       <PrivateEventModal
         isOpen={isPrivateEventOpen}
         onClose={() => setIsPrivateEventOpen(false)}
+      />
+
+      {/* Admin CRM & Supabase Database Management Modal */}
+      <AdminClientsModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
       />
 
       {/* Discreet Sticky Bottom CTA Bar on Mobile (Strictly under 15% viewport height) */}
@@ -184,6 +242,18 @@ export default function App() {
         >
           <ShoppingBag className="w-3.5 h-3.5 text-amber-600" />
           <span>Panier {cartCount > 0 ? `(${cartCount})` : ''}</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setOrderTrackingRef('');
+            setIsOrderStatusOpen(true);
+          }}
+          className="p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-xl flex items-center justify-center"
+          title="Suivre l'état de ma commande en direct"
+          aria-label="Suivre ma commande"
+        >
+          <Clock className="w-4 h-4 text-amber-700" />
         </button>
 
         <a

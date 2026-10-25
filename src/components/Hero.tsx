@@ -166,25 +166,26 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-xl">
               
-              {/* Main Visual Image from user screenshots */}
+              {/* Main Visual Image - High-End Generated Restaurant Spread */}
               <div className="relative aspect-[4/3] overflow-hidden group">
                 <img
-                  src="/public/assets/aistudio/Screenshot_20261025_112200_Maps_3920c27f.jpg"
-                  alt="Restaurant 5 Fourchettes Douala - Gambas géantes et pizza XXL"
+                  src="/src/assets/images/hero_culinary_spread_1792926507083.jpg"
+                  alt="Restaurant 5 Fourchettes Douala - Festin gastronomique, pizzas au feu de bois et gambas géantes"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/assets/aistudio/Screenshot_20261025_112200_Maps_3920c27f.jpg";
                   }}
                 />
                 
                 {/* Visual gradient overlay for text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent pointer-events-none" />
 
                 {/* Floating highlight badge */}
                 <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md border border-amber-300 text-amber-900 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md">
                   <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Plats copieux & Pizzas XXL</span>
+                  <span>Plats cuisinés maison & Pizzas XXL</span>
                 </div>
 
                 {/* Floating Price sticker */}
@@ -206,44 +207,44 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
               </div>
 
-              {/* Mini Gallery Strip with other captured authentic dishes */}
+              {/* Mini Gallery Strip with generated dish specialties */}
               <div className="p-3 bg-stone-50 border-t border-stone-200 grid grid-cols-3 gap-2">
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/public/assets/aistudio/Screenshot_20261025_112253_Maps_44cd291b.jpg"
-                    alt="Petit déj indien chai et salade verte 5 fourchettes"
+                    src="/src/assets/images/pizza_tikka_woodfired_1792926506777.jpg"
+                    alt="Pizza Tikka artisanale au feu de bois"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors" />
                   <span className="absolute bottom-1 left-1 text-[10px] text-white font-semibold bg-stone-900/80 px-1 rounded truncate max-w-[90%]">
-                    Spécialités Indiennes
+                    Pizza Tikka
                   </span>
                 </div>
 
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/public/assets/aistudio/Screenshot_20261025_112305_Maps_9238cdc6.jpg"
-                    alt="Pizzas artisanales et pâtes fraîches"
+                    src="/src/assets/images/grilled_jumbo_prawns_1792926551270.jpg"
+                    alt="Gambas géantes braisées au feu de bois"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors" />
                   <span className="absolute bottom-1 left-1 text-[10px] text-white font-semibold bg-stone-900/80 px-1 rounded truncate max-w-[90%]">
-                    Pâtes & Pizzas
+                    Gambas Braisées
                   </span>
                 </div>
 
                 <div className="rounded-lg overflow-hidden border border-stone-200 bg-white relative group cursor-pointer" onClick={onScrollToMenu}>
                   <img
-                    src="/public/assets/aistudio/Screenshot_20261025_112259_Maps_1ee0685f.jpg"
-                    alt="Limonade japonaise et cocktails bar 5 fourchettes"
+                    src="/src/assets/images/indian_chai_breakfast_1792926551291.jpg"
+                    alt="Petit déjeuner indien parathas et thé chai"
                     className="w-full h-16 object-cover group-hover:scale-110 transition-transform"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors" />
                   <span className="absolute bottom-1 left-1 text-[10px] text-white font-semibold bg-stone-900/80 px-1 rounded truncate max-w-[90%]">
-                    Bar & Cocktails
+                    Petit Déj Indien
                   </span>
                 </div>
               </div>

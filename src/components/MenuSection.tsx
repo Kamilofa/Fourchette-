@@ -1,9 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Minus, Check, Flame, Leaf, Award } from 'lucide-react';
+import { 
+  Search, 
+  Plus, 
+  Minus, 
+  Check, 
+  Flame, 
+  Leaf, 
+  Award, 
+  Maximize2, 
+  SlidersHorizontal,
+  Grid3X3,
+  Image as ImageIcon
+} from 'lucide-react';
 import { MENU_ITEMS, MenuItem } from '../data/restaurantData';
+import { DishDetailModal } from './DishDetailModal';
 
 interface MenuSectionProps {
-  onAddToCart: (item: MenuItem, quantity: number) => void;
+  onAddToCart: (item: MenuItem, quantity: number, note?: string) => void;
   cartItems: { [id: string]: number };
 }
 
@@ -13,6 +26,9 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'default' | 'popular' | 'price-asc' | 'price-desc'>('default');
+  const [viewMode, setViewMode] = useState<'grid' | 'large'>('grid');
+  const [selectedDishForModal, setSelectedDishForModal] = useState<MenuItem | null>(null);
   const [justAddedId, setJustAddedId] = useState<string | null>(null);
 
   const categories = [
@@ -26,16 +42,27 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   ];
 
   const filteredItems = useMemo(() => {
-    return MENU_ITEMS.filter((item) => {
+    let result = MENU_ITEMS.filter((item) => {
       const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
 
-  const handleAdd = (item: MenuItem, qty: number = 1) => {
+    if (sortBy === 'popular') {
+      result = [...result].sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
+    } else if (sortBy === 'price-asc') {
+      result = [...result].sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      result = [...result].sort((a, b) => b.price - a.price);
+    }
+
+    return result;
+  }, [activeCategory, searchQuery, sortBy]);
+
+  const handleQuickAdd = (e: React.MouseEvent, item: MenuItem, qty: number = 1) => {
+    e.stopPropagation();
     onAddToCart(item, qty);
     setJustAddedId(item.id);
     setTimeout(() => {
@@ -48,29 +75,68 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title & Description */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
           <div>
             <p className="text-xs uppercase tracking-widest text-amber-700 font-bold mb-2">
               Carte Gastronomique & Pâtisseries
             </p>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 tracking-tight">
-              La Carte du Restaurant 5 Fourchettes
+              La Carte Interactive du 5 Fourchettes
             </h2>
             <p className="mt-2 text-stone-600 text-sm max-w-xl">
-              Plats généreux préparés à la commande par nos chefs. Choisissez vos plats préférés pour déguster sur place, à emporter ou en livraison à Douala.
+              Cliquez sur n'importe quel plat pour l'agrandir, découvrir ses ingrédients et personnaliser votre commande.
             </p>
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher un plat..."
-              className="w-full bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-600 shadow-xs transition-colors"
-            />
+          {/* Search & Sort Controls */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            {/* Search Box */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Rechercher un plat, pizza..."
+                className="w-full bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-600 shadow-xs transition-colors"
+              />
+            </div>
+
+            {/* Sort Selector */}
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full sm:w-auto bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-stone-700 focus:outline-none focus:border-amber-600 shadow-xs cursor-pointer"
+              >
+                <option value="default">Tri par défaut</option>
+                <option value="popular">Plats populaires</option>
+                <option value="price-asc">Prix croissant</option>
+                <option value="price-desc">Prix décroissant</option>
+              </select>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="hidden sm:flex items-center gap-1 bg-white p-1 rounded-xl border border-stone-200 shadow-xs">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  viewMode === 'grid' ? 'bg-amber-100 text-amber-900' : 'text-stone-500 hover:text-stone-900'
+                }`}
+                title="Vue grille compacte"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('large')}
+                className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  viewMode === 'large' ? 'bg-amber-100 text-amber-900' : 'text-stone-500 hover:text-stone-900'
+                }`}
+                title="Vue grande galerie visuelle"
+              >
+                <ImageIcon className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -106,7 +172,11 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`grid gap-6 ${
+            viewMode === 'grid'
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-1 md:grid-cols-2'
+          }`}>
             {filteredItems.map((item) => {
               const qtyInCart = cartItems[item.id] || 0;
               const isJustAdded = justAddedId === item.id;
@@ -114,24 +184,49 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
               return (
                 <div
                   key={item.id}
-                  className="group bg-white rounded-2xl border border-stone-200 hover:border-amber-300 overflow-hidden flex flex-col transition-all hover:shadow-lg hover:-translate-y-1"
+                  onClick={() => setSelectedDishForModal(item)}
+                  className="group bg-white rounded-2xl border border-stone-200 hover:border-amber-400 overflow-hidden flex flex-col transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 >
-                  {/* Dish Visual Header */}
-                  <div className={`relative h-44 w-full bg-gradient-to-br ${item.imageFallback} flex items-center justify-center p-4 overflow-hidden`}>
+                  {/* Dish Visual Header with Authentic Image Crop */}
+                  <div className={`relative ${viewMode === 'large' ? 'h-64 sm:h-72' : 'h-48 sm:h-52'} w-full bg-stone-950 overflow-hidden select-none`}>
                     
-                    <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
+                    {item.imageSrc ? (
+                      <div className="relative w-full h-full overflow-hidden">
+                        <img
+                          src={item.imageSrc}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                          style={{
+                            transformOrigin: item.cropOrigin || 'center',
+                            transform: `scale(${item.scale !== undefined ? item.scale : 1})`,
+                          }}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.includes('/public/')) {
+                              target.src = `/public${item.imageSrc}`;
+                            }
+                          }}
+                        />
 
-                    {/* Dish title display */}
-                    <div className="text-center relative z-10 px-4">
-                      <span className="text-[10px] uppercase tracking-widest text-amber-200 font-bold mb-1 block">
-                        {item.categoryLabel}
-                      </span>
-                      <h4 className="font-serif font-bold text-xl text-white drop-shadow-md">
-                        {item.name}
-                      </h4>
-                    </div>
+                        {/* Scrim overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent pointer-events-none" />
 
-                    {/* Badges */}
+                        {/* Hover Magnifying Prompt */}
+                        <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
+                          <span className="px-3 py-1.5 rounded-xl bg-white/90 text-stone-950 text-xs font-bold shadow-lg flex items-center gap-1.5">
+                            <Maximize2 className="w-3.5 h-3.5" />
+                            <span>Agrandir le plat</span>
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={`w-full h-full bg-gradient-to-br ${item.imageFallback} flex items-center justify-center p-4 text-white text-center`}>
+                        <h4 className="font-serif font-bold text-xl drop-shadow-md">{item.name}</h4>
+                      </div>
+                    )}
+
+                    {/* Badges top-left */}
                     <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
                       {item.popular && (
                         <span className="bg-amber-500 text-stone-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
@@ -154,7 +249,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                     </div>
 
                     {/* Price bottom-right pill */}
-                    <div className="absolute bottom-3 right-3 bg-stone-950/85 backdrop-blur-sm text-amber-300 border border-stone-700 px-2.5 py-1 rounded-lg text-xs font-bold font-mono tabular-nums shadow-md">
+                    <div className="absolute bottom-3 right-3 bg-stone-950/90 backdrop-blur-sm text-amber-300 border border-stone-700 px-2.5 py-1 rounded-lg text-xs font-bold font-mono tabular-nums shadow-md z-10">
                       {item.price.toLocaleString()} FCFA
                     </div>
                   </div>
@@ -162,11 +257,13 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   {/* Dish Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <h3 className="font-bold text-base text-stone-900 group-hover:text-amber-700 transition-colors">
-                        {item.name}
-                      </h3>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-bold text-base text-stone-900 group-hover:text-amber-700 transition-colors">
+                          {item.name}
+                        </h3>
+                      </div>
 
-                      <p className="mt-2 text-stone-600 text-xs leading-relaxed line-clamp-3">
+                      <p className="mt-2 text-stone-600 text-xs leading-relaxed line-clamp-2">
                         {item.description}
                       </p>
 
@@ -178,14 +275,17 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         {item.halal && (
                           <>
                             <span aria-hidden="true">·</span>
-                            <span className="text-emerald-700 font-medium">100% Halal</span>
+                            <span className="text-emerald-700 font-semibold">100% Halal</span>
                           </>
                         )}
                       </div>
                     </div>
 
                     {/* Action Bar */}
-                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
+                    <div 
+                      className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="text-sm font-bold text-stone-900 font-mono tabular-nums">
                         {item.price.toLocaleString()} <span className="text-xs font-normal text-stone-500">FCFA</span>
                       </div>
@@ -193,9 +293,9 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                       {qtyInCart > 0 ? (
                         <div className="flex items-center gap-2 bg-stone-100 border border-amber-300 rounded-xl p-1">
                           <button
-                            onClick={() => onAddToCart(item, -1)}
+                            onClick={(e) => handleQuickAdd(e, item, -1)}
                             className="p-1 hover:bg-stone-200 rounded-lg text-stone-700 hover:text-stone-900 transition-colors"
-                            aria-label="Diminuer la quantité"
+                            aria-label="Diminuer"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
@@ -203,20 +303,20 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                             {qtyInCart}
                           </span>
                           <button
-                            onClick={() => handleAdd(item, 1)}
+                            onClick={(e) => handleQuickAdd(e, item, 1)}
                             className="p-1 hover:bg-stone-200 rounded-lg text-amber-700 hover:text-amber-800 transition-colors"
-                            aria-label="Augmenter la quantité"
+                            aria-label="Augmenter"
                           >
                             <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ) : (
                         <button
-                          onClick={() => handleAdd(item, 1)}
-                          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                          onClick={(e) => handleQuickAdd(e, item, 1)}
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs ${
                             isJustAdded
                               ? 'bg-emerald-600 text-white'
-                              : 'bg-stone-100 hover:bg-amber-600 text-stone-800 hover:text-white border border-stone-200 hover:border-amber-600'
+                              : 'bg-amber-600 hover:bg-amber-700 text-white'
                           }`}
                         >
                           {isJustAdded ? (
@@ -227,7 +327,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                           ) : (
                             <>
                               <Plus className="w-3.5 h-3.5" />
-                              <span>Ajouter</span>
+                              <span>Commander</span>
                             </>
                           )}
                         </button>
@@ -242,6 +342,14 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
         )}
 
       </div>
+
+      {/* Interactive Lightbox / Dish Detail Modal */}
+      <DishDetailModal
+        item={selectedDishForModal}
+        onClose={() => setSelectedDishForModal(null)}
+        onAddToCart={onAddToCart}
+      />
+
     </section>
   );
 };

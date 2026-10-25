@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, ShoppingBag, Calendar, Menu as MenuIcon, X, UtensilsCrossed } from 'lucide-react';
+import { Phone, ShoppingBag, Calendar, Menu as MenuIcon, X, UtensilsCrossed, Database, Clock } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
 interface NavbarProps {
@@ -8,6 +8,8 @@ interface NavbarProps {
   onOpenCart: () => void;
   onOpenReservation: () => void;
   onOpenPayment: () => void;
+  onOpenAdmin: () => void;
+  onOpenOrderStatus: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,6 +18,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   onOpenReservation,
   onOpenPayment,
+  onOpenAdmin,
+  onOpenOrderStatus,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -60,6 +64,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a href="#contact" className="hover:text-amber-700 transition-colors whitespace-nowrap shrink-0">
               Accès & Horaires
             </a>
+            <button
+              onClick={onOpenOrderStatus}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
+              title="Suivre l'état de votre commande en direct (Pending / Preparing / Delivered)"
+            >
+              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              <span>Suivi Commande</span>
+            </button>
+            <button
+              onClick={onOpenAdmin}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-emerald-850 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors whitespace-nowrap shrink-0"
+              title="Base clients et commandes Supabase"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Base Clients CRM</span>
+            </button>
           </nav>
 
           {/* Zone 3: 1 primary action cluster */}
@@ -140,17 +160,31 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
             <button
               onClick={() => { setMobileMenuOpen(false); onOpenPayment(); }}
-              className="text-left px-3 py-2 rounded-lg text-amber-700 hover:bg-amber-50 font-semibold"
+              className="text-left px-3 py-2 rounded-lg text-amber-700 hover:bg-amber-50 font-semibold text-xs"
             >
               Paiement Mobile Money (Orange / MTN 6 55 44 14 14)
             </button>
             <a
               href="#contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-stone-700 hover:text-amber-700 hover:bg-stone-100"
+              className="px-3 py-2 rounded-lg text-stone-700 hover:text-amber-700 hover:bg-stone-100 text-xs"
             >
               Accès & Horaires à Douala
             </a>
+            <button
+              onClick={() => { setMobileMenuOpen(false); onOpenOrderStatus(); }}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 font-bold text-left text-xs"
+            >
+              <Clock className="w-4 h-4 text-amber-600" />
+              <span>Suivre ma commande en direct</span>
+            </button>
+            <button
+              onClick={() => { setMobileMenuOpen(false); onOpenAdmin(); }}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 font-bold text-left text-xs"
+            >
+              <Database className="w-4 h-4 text-emerald-600" />
+              <span>Base Clients & Commandes Supabase</span>
+            </button>
           </nav>
 
           <div className="pt-2 border-t border-stone-200 flex flex-col gap-2">

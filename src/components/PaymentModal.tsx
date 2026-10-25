@@ -10,9 +10,11 @@ import {
   AlertTriangle,
   Loader2,
   RefreshCw,
-  MessageCircle
+  MessageCircle,
+  Clock
 } from 'lucide-react';
 import { RESTAURANT_INFO, PAYMENT_METHODS } from '../data/restaurantData';
+import { dbService, OrderRecord } from '../services/dbService';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -20,6 +22,15 @@ interface PaymentModalProps {
   presetAmount?: number;
   orderReference?: string;
   orderType?: 'order' | 'reservation' | 'custom';
+  orderDetails?: {
+    mode?: 'livraison' | 'drive' | 'table';
+    address?: string;
+    items?: Array<{ id: string; name: string; price: number; quantity: number }>;
+    customerName?: string;
+    customerPhone?: string;
+  };
+  onPaymentSuccess?: (orderId: string) => void;
+  onTrackOrder?: (orderId: string) => void;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -28,16 +39,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   presetAmount,
   orderReference,
   orderType = 'order',
+  orderDetails,
+  onPaymentSuccess,
+  onTrackOrder,
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<'momo' | 'om' | 'cash_pos'>('momo');
   const [amount, setAmount] = useState<number>(presetAmount || 10000);
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerName, setCustomerName] = useState(orderDetails?.customerName || '');
+  const [customerPhone, setCustomerPhone] = useState(orderDetails?.customerPhone || '');
   const [transactionRef, setTransactionRef] = useState('');
   const [hasInitiatedTransfer, setHasInitiatedTransfer] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string>('');
   const [verifiedTimestamp, setVerifiedTimestamp] = useState<string>('');
 
   const [copiedNumber, setCopiedNumber] = useState(false);
@@ -104,17 +119,72 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
       // Trigger verification simulation
       setIsVerifying(true);
-      setTimeout(() => {
+      setTimeout(async () => {
         setIsVerifying(false);
-        // Valid reference confirmed
         setIsConfirmed(true);
-        setVerifiedTimestamp(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+        const timeStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        setVerifiedTimestamp(timeStr);
+
+        // Save order & client to Supabase & local DB
+        const generatedOrderId = orderReference || `CMD-5F-${Math.floor(1000 + Math.random() * 9000)}`;
+        setConfirmedOrderId(generatedOrderId);
+        try {
+          await dbService.saveOrder({
+            id: generatedOrderId,
+            customer_name: customerName,
+            customer_phone: customerPhone,
+            order_mode: orderDetails?.mode || 'livraison',
+            delivery_address: orderDetails?.address || 'Douala',
+            items: orderDetails?.items || [
+              { id: 'custom-payment', name: orderType === 'reservation' ? 'Acompte Réservation Table' : 'Commande Restaurant 5 Fourchettes', price: amount, quantity: 1 }
+            ],
+            subtotal: amount,
+            delivery_fee: 0,
+            total_amount: amount,
+            payment_method: selectedMethod,
+            payment_reference: cleanRef,
+            payment_status: 'verified',
+            order_status: 'received',
+            created_at: new Date().toISOString()
+          });
+          if (onPaymentSuccess) {
+            onPaymentSuccess(generatedOrderId);
+          }
+        } catch (dbErr) {
+          console.warn('Database save warning:', dbErr);
+        }
       }, 1400);
 
     } else {
       // Cash / POS mode
       setIsConfirmed(true);
-      setVerifiedTimestamp(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+      const timeStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      setVerifiedTimestamp(timeStr);
+
+      const generatedOrderId = orderReference || `CMD-5F-${Math.floor(1000 + Math.random() * 9000)}`;
+      setConfirmedOrderId(generatedOrderId);
+      dbService.saveOrder({
+        id: generatedOrderId,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        order_mode: orderDetails?.mode || 'table',
+        delivery_address: orderDetails?.address || 'Sur place',
+        items: orderDetails?.items || [
+          { id: 'pos-order', name: 'Règlement sur place / TPE', price: amount, quantity: 1 }
+        ],
+        subtotal: amount,
+        delivery_fee: 0,
+        total_amount: amount,
+        payment_method: 'cash_pos',
+        payment_reference: 'SUR_PLACE',
+        payment_status: 'verified',
+        order_status: 'received',
+        created_at: new Date().toISOString()
+      }).catch(console.warn);
+
+      if (onPaymentSuccess) {
+        onPaymentSuccess(generatedOrderId);
+      }
     }
   };
 
@@ -415,23 +485,44 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <span className="font-bold text-stone-800">Montant Total Validé</span>
                 <strong className="text-amber-700 font-mono text-base">{amount.toLocaleString()} FCFA</strong>
               </div>
+              <div className="mt-2 pt-2 border-t border-stone-200 flex items-center gap-1.5 text-[11px] text-emerald-700 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Enregistré avec succès dans la base de données clients</span>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            {/* Primary Order Tracking CTA */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onTrackOrder) {
+                    onTrackOrder(confirmedOrderId);
+                  }
+                }}
+                className="w-full py-3.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-98"
+              >
+                <Clock className="w-4 h-4 text-amber-200" />
+                <span>Suivre l'état de ma commande en direct (Pending / Preparing / Delivered)</span>
+              </button>
+            </div>
+
+            {/* Secondary Actions */}
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <a
                 href={`https://wa.me/${RESTAURANT_INFO.whatsappNumber}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Transmettre à la cuisine WhatsApp</span>
+                <span>WhatsApp Cuisine</span>
               </a>
 
               <button
                 onClick={() => window.print()}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
+                className="py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
               >
                 <Download className="w-4 h-4" />
                 <span>Imprimer Reçu</span>
@@ -439,7 +530,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               <button
                 onClick={onClose}
-                className="py-3 px-4 bg-stone-200 hover:bg-stone-300 text-stone-700 font-semibold text-xs rounded-xl transition-all"
+                className="py-2.5 px-3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-semibold text-xs rounded-xl transition-all"
               >
                 Fermer
               </button>

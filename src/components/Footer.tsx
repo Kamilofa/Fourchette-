@@ -1,17 +1,19 @@
 import React from 'react';
-import { UtensilsCrossed, Phone, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
+import { UtensilsCrossed, Phone, MapPin, MessageCircle, ShieldCheck, Database } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
 interface FooterProps {
   onOpenReservation: () => void;
   onOpenPayment: () => void;
   onScrollToMenu: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenReservation,
   onOpenPayment,
   onScrollToMenu,
+  onOpenAdmin,
 }) => {
   return (
     <footer className="bg-white text-stone-700 border-t border-stone-200 pt-16 pb-12">
@@ -64,6 +66,17 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <a href="#contact" className="hover:text-amber-800 transition-colors">Accès & Horaires</a>
               </li>
+              {onOpenAdmin && (
+                <li>
+                  <button
+                    onClick={onOpenAdmin}
+                    className="flex items-center gap-1.5 text-emerald-800 hover:text-emerald-950 font-bold transition-colors text-left"
+                  >
+                    <Database className="w-3 h-3 text-emerald-600" />
+                    <span>Base Clients Supabase</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
