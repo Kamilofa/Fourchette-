@@ -1,0 +1,6 @@
+{
+  "name": "Restaurant 5 Fourchettes Douala",
+  "description": "Site officiel du Restaurant 5 Fourchettes à Douala. Spécialités indiennes, pizzas XXL, pâtes fraîches et grillades. Réservation de table et commande en ligne avec paiement Mobile Money au 6 55 44 14 14.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
